@@ -6,4 +6,6 @@ struct Project: Codable, Sendable {
     var description: String
     var goal: Double
     var currentAmount: Double
+    var category: String       
+    var createdAt: String 
 }
