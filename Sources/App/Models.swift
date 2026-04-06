@@ -1,7 +1,9 @@
 import Foundation
 
-struct TaskItem: Codable, Sendable {
+struct Project: Codable, Sendable {
     let id: Int64?
     var title: String
-    var isCompleted: Bool
+    var description: String
+    var goal: Double
+    var currentAmount: Double
 }
