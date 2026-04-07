@@ -143,8 +143,10 @@ struct Database {
     static func donate(db: Connection, id pid: Int64, amount: Double) throws {
         let project = projects.filter(self.p_id == pid)
         if let p = try db.pluck(project) {
-            let newAmount = p[p_currentAmount] + amount
-            try db.run(project.update(p_currentAmount <- newAmount))
+        if p[p_currentAmount] < p[p_goal] {
+          let newAmount = p[p_currentAmount] + amount
+          try db.run(project.update(p_currentAmount <- newAmount))
+         }
         }
     }
 }

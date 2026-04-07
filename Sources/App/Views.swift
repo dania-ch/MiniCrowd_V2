@@ -166,6 +166,8 @@ struct Views {
 
         let rows = items.map { p in
             let progress = min(100, Int((p.currentAmount / p.goal) * 100))
+            let isFunded = p.currentAmount >= p.goal
+            let donateHTML = isFunded ? "<span style='color:#6366f1; font-weight:bold;'>Financé !</span>" : "<form action='/donate/\(p.id)' method='post' style='margin:0; display:flex; gap:0.5rem;'><input type='number' name='amount' min='1' step='1' value='10' style='width: 90px; margin:0;' required><button type='submit' style='margin:0;'>Donner</button></form>"
             return """
                 <article class="card">
                     <header style="margin-bottom: 0.5rem;">
@@ -182,10 +184,7 @@ struct Views {
                     
                     <footer style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
                         <a href="/project/\(p.id)" role="button" class="outline" style="flex: 1; text-align: center;">Détails & Édition</a>
-                        <form action="/donate/\(p.id)" method="post" style="margin:0; display:flex; gap:0.5rem;">
-                            <input type="number" name="amount" min="1" step="1" value="10" style="width: 90px; margin:0;" required>
-                            <button type="submit" style="margin:0;">Donner</button>
-                        </form>
+                        \(donateHTML)
                     </footer>
                 </article>
                 """
@@ -255,6 +254,8 @@ struct Views {
     static func renderDetail(project: ProjectDetail, categories: [Category], error: String?) -> HTML
     {
         let progress = min(100, Int((project.currentAmount / project.goal) * 100))
+        let isFunded = project.currentAmount >= project.goal
+        let donateHTML = isFunded ? "<div style='background:#dcfce7; border-left:4px solid #22c55e; color:#166534; padding:1rem;'><strong>Projet financé !</strong> Dons clôturés.</div>" : "<form action='/donate/\(project.id)' method='post' class='grid' style='gap: 0.5rem;'><input type='number' name='amount' min='1' step='1' value='10' required><button type='submit'>Valider le don</button></form>"
 
         let categoriesOptions = categories.map { c in
             let isSelected = c.id == project.categoryId ? "selected" : ""
@@ -294,10 +295,7 @@ struct Views {
                             
                             <div>
                                 <h4>Soutenir ce projet</h4>
-                                <form action="/donate/\(project.id)" method="post" class="grid" style="gap: 0.5rem;">
-                                    <input type="number" name="amount" min="1" step="1" value="10" required>
-                                    <button type="submit">Valider le don</button>
-                                </form>
+                                \(donateHTML)
 
                                 <hr>
                                 <h4>Zone de danger</h4>
