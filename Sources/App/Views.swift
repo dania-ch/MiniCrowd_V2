@@ -10,18 +10,131 @@ struct Views {
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-            <title>\(title) - CrowdFunding</title>
+            <title>\(title) - SwiftFund</title>
             <style>
-                :root { --pico-primary: #10B981; --pico-primary-hover: #059669; }
-                .hero { padding: 3rem 0; text-align: center; background: linear-gradient(135deg, #1f2937, #111827); color: white; border-radius: 12px; margin-bottom: 2rem; }
-                .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; transition: transform 0.2s, box-shadow 0.2s; background: var(--pico-background-color); }
-                .card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-                .badge { background: #e0f2fe; color: #0284c7; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: bold; }
-                .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-                .progress-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--pico-muted-color); }
-                progress { border-radius: 8px; height: 10px; }
-                progress::-webkit-progress-value { background-color: var(--pico-primary); border-radius: 8px; }
-                .error-box { background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; }
+                /* Variables personnalisées (Thème Violet/Indigo) */
+                :root {
+                    --pico-primary: #6366f1; 
+                    --pico-primary-hover: #4f46e5;
+                    --pico-border-radius: 1rem;
+                    --pico-font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                }
+
+                /* Fond de page très légèrement gris pour faire ressortir les cartes blanches */
+                body {
+                    background-color: #f8fafc;
+                }
+
+                /* Navigation : Sticky + Effet verre flouté (Glassmorphism) */
+                nav {
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                    background: rgba(255, 255, 255, 0.7);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                    padding: 1rem 0;
+                    margin-bottom: 2rem;
+                }
+
+                /* En-tête principal (Hero) : Dégradé et ombre colorée */
+                .hero {
+                    padding: 4rem 2rem;
+                    text-align: center;
+                    background: linear-gradient(135deg, #4f46e5, #ec4899);
+                    color: white;
+                    border-radius: 1.5rem;
+                    margin-bottom: 3rem;
+                    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+                }
+                .hero h1 { color: white; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem; }
+                .hero p { font-size: 1.25rem; opacity: 0.9; margin: 0; }
+
+                /* Cartes de projets : Douces et interactives */
+                .card {
+                    background: white;
+                    border: 1px solid #f1f5f9;
+                    border-radius: 1.5rem;
+                    padding: 1.5rem;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                }
+                .card:hover {
+                    transform: translateY(-8px);
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+                    border-color: #e2e8f0;
+                }
+
+                /* Badges de catégories plus ronds et colorés */
+                .badge {
+                    display: inline-block;
+                    background: #e0e7ff;
+                    color: #4338ca;
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 9999px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                /* Grille responsive */
+                .grid-cards {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                    gap: 2rem;
+                }
+
+                /* Barre de progression : Dégradé et style moderne */
+                .progress-text {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 0.875rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                    color: #475569;
+                }
+                progress {
+                    border-radius: 999px;
+                    height: 12px;
+                    background-color: #e2e8f0;
+                    overflow: hidden;
+                    border: none;
+                }
+                progress::-webkit-progress-bar {
+                    background-color: #e2e8f0;
+                }
+                progress::-webkit-progress-value {
+                    background: linear-gradient(90deg, #6366f1, #a855f7);
+                    border-radius: 999px;
+                }
+                progress::-moz-progress-bar {
+                    background: linear-gradient(90deg, #6366f1, #a855f7);
+                    border-radius: 999px;
+                }
+
+                /* Boutons stylisés */
+                button {
+                    border-radius: 9999px;
+                    font-weight: 600;
+                    transition: transform 0.1s;
+                }
+                button:active { transform: scale(0.97); }
+
+                /* Box d'erreur élégante */
+                .error-box {
+                    background-color: #fef2f2;
+                    border-left: 4px solid #ef4444;
+                    color: #991b1b;
+                    padding: 1rem 1.5rem;
+                    margin-bottom: 2rem;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                }
             </style>
         </head>
         """
