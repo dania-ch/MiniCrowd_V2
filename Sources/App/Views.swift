@@ -1,58 +1,77 @@
 import Hummingbird
-import Foundation
 
 struct Views {
+
     static func renderIndex(items: [Project]) -> HTML {
 
         let rows = items.map { p in
-            let progress = Int((p.currentAmount / p.goal) * 100)
-
-            return """
-            <article style="margin-bottom: 1rem;">
-                <h3>\(p.title)</h3>
+            """
+            <article>
+                <h3><a href="/project/\(p.id!)">\(p.title)</a></h3>
                 <p>\(p.description)</p>
-                <p>💰 \(p.currentAmount) / \(p.goal) € (\(progress)%)</p>
+                <small>Category: \(p.category)</small>
+                <p>💰 \(p.currentAmount) / \(p.goal)</p>
 
-                <form action="/donate/\(p.id ?? 0)" method="post" style="display:inline;">
-                    <button type="submit">💸 Donate 10€</button>
+                <form action="/donate/\(p.id!)" method="post">
+                    <button>Donate</button>
                 </form>
 
-                <form action="/delete/\(p.id ?? 0)" method="post" style="display:inline;">
-                    <button type="submit" class="secondary">🗑 Delete</button>
+                <form action="/delete/\(p.id!)" method="post">
+                    <button class="contrast">Delete</button>
                 </form>
             </article>
             """
         }.joined()
 
         return HTML(content: """
-        <!DOCTYPE html>
         <html>
         <head>
-            <meta charset="utf-8">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-            <title>Crowdfunding</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
         </head>
         <body class="container">
-            <h1>🚀 Crowdfunding App</h1>
 
-            <form action="/add" method="post">
-                <input name="title" placeholder="Project title" required>
-                <input name="description" placeholder="Description" required>
-                <input name="goal" type="number" placeholder="Goal €" required>
-                <button type="submit">Add Project</button>
-            </form>
+        <h1>🚀 Crowdfunding App</h1>
 
-            <hr>
+        <!-- SEARCH -->
+        <form method="get">
+            <input name="search" placeholder="Search project...">
+        </form>
 
-            \(items.isEmpty ? "<p>No projects yet</p>" : rows)
+        <!-- ADD -->
+        <form action="/add" method="post">
+            <input name="title" placeholder="Title">
+            <input name="description" placeholder="Description">
+            <input name="goal" placeholder="Goal">
+            <input name="category" placeholder="Category">
+            <button>Add</button>
+        </form>
+
+        <hr>
+        \(rows)
 
         </body>
         </html>
         """)
     }
-}
 
-// HTML response
+    static func renderDetail(project: Project) -> HTML {
+        return HTML(content: """
+        <html><body class="container">
+        <h2>\(project.title)</h2>
+        <p>\(project.description)</p>
+
+        <form action="/update/\(project.id!)" method="post">
+            <input name="title" value="\(project.title)">
+            <input name="description" value="\(project.description)">
+            <input name="goal" value="\(project.goal)">
+            <button>Update</button>
+        </form>
+
+        <a href="/">⬅ Back</a>
+        </body></html>
+        """)
+    }
+}
 struct HTML: ResponseGenerator {
     let content: String
 
