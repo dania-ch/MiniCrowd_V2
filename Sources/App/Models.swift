@@ -1,12 +1,12 @@
 import Foundation
 
-// Modèle pour les Catégories (2ème modèle de données)
+// Modele pour les Categories (2eme modele de donnees)
 struct Category: Codable, Sendable {
     let id: Int64?
     var name: String
 }
 
-// Modèle classique du projet
+// Modele classique du projet
 struct Project: Codable, Sendable {
     let id: Int64?
     var title: String
@@ -16,7 +16,7 @@ struct Project: Codable, Sendable {
     var categoryId: Int64
 }
 
-// Structure combinée pour la vue (Jointure SQL)
+// Structure combinee pour la vue (Jointure SQL)
 struct ProjectDetail: Codable, Sendable {
     let id: Int64
     var title: String

@@ -104,7 +104,7 @@ router.post("/donate/:id") { request, context -> Response in
         return Response(status: .badRequest)
     }
     
-    // Récupération du montant depuis le formulaire
+    // Recuperation du montant depuis le formulaire
     let params = try await parseBody(request: request)
     let amountStr = params.first(where: { $0.name == "amount" })?.value ?? "0"
     
@@ -118,7 +118,7 @@ router.post("/donate/:id") { request, context -> Response in
     // Ajout du don en base de données
     try Database.donate(db: db, id: pid, amount: amount)
     
-    // Retour malin : on redirige vers la page d'où l'utilisateur vient
+    // Retour malin : on redirige vers la page d'ou l'utilisateur vient
     let referer = request.headers[.referer] ?? "/"
     return Response(status: .seeOther, headers: [.location: referer])
 }
@@ -129,5 +129,5 @@ let app = Application(
     configuration: .init(address: .hostname("0.0.0.0", port: 8080))
 )
 
-print("🚀 Crowdfunding running on http://localhost:8080")
+print("Crowdfunding running on http://localhost:8080")
 try await app.runService()
