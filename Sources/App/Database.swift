@@ -1,121 +1,150 @@
 import SQLite
 import Foundation
 
+// Fix concurrency Swift
 extension Connection: @unchecked @retroactive Sendable {}
 
 struct Database {
-
+    // Tables
     static let projects = Table("projects")
+    static let categories = Table("categories")
 
-    static let id = Expression<Int64>("id")
-    static let title = Expression<String>("title")
-    static let description = Expression<String>("description")
-    static let goal = Expression<Double>("goal")
-    static let currentAmount = Expression<Double>("currentAmount")
-    static let category = Expression<String>("category")
-    static let createdAt = Expression<String>("createdAt")
+    // Colonnes Projects
+    static let p_id = Expression<Int64>("id")
+    static let p_title = Expression<String>("title")
+    static let p_description = Expression<String>("description")
+    static let p_goal = Expression<Double>("goal")
+    static let p_currentAmount = Expression<Double>("currentAmount")
+    static let p_categoryId = Expression<Int64>("category_id")
 
+    // Colonnes Categories
+    static let c_id = Expression<Int64>("id")
+    static let c_name = Expression<String>("name")
+
+    // Setup DB
     static func setup() throws -> Connection {
         let db = try Connection("db.sqlite3")
 
-        try db.run(projects.create(ifNotExists: true) { t in
-            t.column(id, primaryKey: .autoincrement)
-            t.column(title)
-            t.column(description)
-            t.column(goal)
-            t.column(currentAmount, defaultValue: 0.0)
-            t.column(category)
-            t.column(createdAt)
+        // Table Categories
+        try db.run(categories.create(ifNotExists: true) { t in
+            t.column(c_id, primaryKey: .autoincrement)
+            t.column(c_name, unique: true)
         })
+
+        // Table Projects
+        try db.run(projects.create(ifNotExists: true) { t in
+            t.column(p_id, primaryKey: .autoincrement)
+            t.column(p_title)
+            t.column(p_description)
+            t.column(p_goal)
+            t.column(p_currentAmount, defaultValue: 0.0)
+            t.column(p_categoryId, references: categories, c_id)
+        })
+
+        // Seed: Remplir les catégories si elles sont vides
+        if try db.scalar(categories.count) == 0 {
+            try db.run(categories.insert(c_name <- "Innovation & Tech 💻"))
+            try db.run(categories.insert(c_name <- "Art & Création 🎨"))
+            try db.run(categories.insert(c_name <- "Communauté 🤝"))
+            try db.run(categories.insert(c_name <- "Environnement 🌍"))
+        }
 
         return db
     }
 
-    // READ ALL
-    static func fetchAllProjects(db: Connection) throws -> [Project] {
-        try db.prepare(projects).map {
-            Project(
-                id: $0[id],
-                title: $0[title],
-                description: $0[description],
-                goal: $0[goal],
-                currentAmount: $0[currentAmount],
-                category: $0[category],
-                createdAt: $0[createdAt]
+    // Récupérer toutes les catégories
+    static func fetchAllCategories(db: Connection) throws -> [Category] {
+        return try db.prepare(categories).map { row in
+            Category(id: row[c_id], name: row[c_name])
+        }
+    }
+
+    // READ ALL avec Recherche et Tri (Bonus)
+    static func fetchProjects(db: Connection, search: String? = nil, sort: String? = nil) throws -> [ProjectDetail] {
+        var query = projects.join(categories, on: categories[c_id] == projects[p_categoryId])
+
+        // Recherche (Bonus)
+        if let search = search, !search.isEmpty {
+            let pattern = "%\(search)%"
+            query = query.filter(projects[p_title].like(pattern) || projects[p_description].like(pattern))
+        }
+
+        // Tri (Bonus)
+        switch sort {
+        case "goal":
+            query = query.order(projects[p_goal].desc)
+        case "title":
+            query = query.order(projects[p_title].asc)
+        default: // "newest" par défaut
+            query = query.order(projects[p_id].desc)
+        }
+
+        return try db.prepare(query).map { row in
+            ProjectDetail(
+                id: row[projects[p_id]],
+                title: row[projects[p_title]],
+                description: row[projects[p_description]],
+                goal: row[projects[p_goal]],
+                currentAmount: row[projects[p_currentAmount]],
+                categoryId: row[projects[p_categoryId]],
+                categoryName: row[categories[c_name]]
             )
         }
     }
 
-    // SEARCH (BONUS 🔥)
-    static func searchProjects(db: Connection, keyword: String) throws -> [Project] {
-        let query = projects.filter(title.like("%\(keyword)%"))
-        return try db.prepare(query).map {
-            Project(
-                id: $0[id],
-                title: $0[title],
-                description: $0[description],
-                goal: $0[goal],
-                currentAmount: $0[currentAmount],
-                category: $0[category],
-                createdAt: $0[createdAt]
-            )
-        }
+    // GET SINGLE PROJECT (Bonus Detail Page)
+    static func fetchProject(db: Connection, id targetId: Int64) throws -> ProjectDetail? {
+        let query = projects.join(categories, on: categories[c_id] == projects[p_categoryId])
+                            .filter(projects[p_id] == targetId)
+        
+        guard let row = try db.pluck(query) else { return nil }
+        
+        return ProjectDetail(
+            id: row[projects[p_id]],
+            title: row[projects[p_title]],
+            description: row[projects[p_description]],
+            goal: row[projects[p_goal]],
+            currentAmount: row[projects[p_currentAmount]],
+            categoryId: row[projects[p_categoryId]],
+            categoryName: row[categories[c_name]]
+        )
     }
 
     // CREATE
-    static func addProject(db: Connection, title: String, description: String, goal: Double, category: String) throws {
-        let date = ISO8601DateFormatter().string(from: Date())
+    static func addProject(db: Connection, title: String, description: String, goal: Double, categoryId: Int64) throws {
+        let insert = projects.insert(
+            self.p_title <- title,
+            self.p_description <- description,
+            self.p_goal <- goal,
+            self.p_currentAmount <- 0.0,
+            self.p_categoryId <- categoryId
+        )
+        try db.run(insert)
+    }
 
-        try db.run(projects.insert(
-            self.title <- title,
-            self.description <- description,
-            self.goal <- goal,
-            self.currentAmount <- 0.0,
-            self.category <- category,
-            self.createdAt <- date
+    // UPDATE COMPLET (Bonus)
+    static func updateProject(db: Connection, id pid: Int64, title: String, description: String, goal: Double, categoryId: Int64) throws {
+        let project = projects.filter(self.p_id == pid)
+        try db.run(project.update(
+            self.p_title <- title,
+            self.p_description <- description,
+            self.p_goal <- goal,
+            self.p_categoryId <- categoryId
         ))
     }
 
     // DELETE
     static func deleteProject(db: Connection, id pid: Int64) throws {
-        try db.run(projects.filter(id == pid).delete())
-    }
-
-    // UPDATE (IMPORTANT 🔥)
-    static func updateProject(db: Connection, id pid: Int64, title: String, description: String, goal: Double) throws {
-        let project = projects.filter(id == pid)
-
-        try db.run(project.update(
-            self.title <- title,
-            self.description <- description,
-            self.goal <- goal
-        ))
+        let project = projects.filter(self.p_id == pid)
+        try db.run(project.delete())
     }
 
     // DONATE
     static func donate(db: Connection, id pid: Int64, amount: Double) throws {
-        let project = projects.filter(id == pid)
-
+        let project = projects.filter(self.p_id == pid)
         if let p = try db.pluck(project) {
-            try db.run(project.update(currentAmount <- p[currentAmount] + amount))
+            let newAmount = p[p_currentAmount] + amount
+            try db.run(project.update(p_currentAmount <- newAmount))
         }
-    }
-
-    // GET BY ID (DETAIL PAGE 🔥)
-    static func getById(db: Connection, id pid: Int64) throws -> Project? {
-        let project = projects.filter(id == pid)
-
-        if let p = try db.pluck(project) {
-            return Project(
-                id: p[id],
-                title: p[title],
-                description: p[description],
-                goal: p[goal],
-                currentAmount: p[currentAmount],
-                category: p[category],
-                createdAt: p[createdAt]
-            )
-        }
-        return nil
     }
 }
