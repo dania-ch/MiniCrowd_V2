@@ -59,14 +59,14 @@ router.post("/add") { request, _ -> Response in
     let description = params.first(where: { $0.name == "description" })?.value ?? ""
     let goalStr = params.first(where: { $0.name == "goal" })?.value ?? "0"
     let catStr = params.first(where: { $0.name == "categoryId" })?.value ?? "0"
+    let imageUrl = params.first(where: { $0.name == "imageUrl" })?.value ?? ""
 
     // VALIDATION (Bonus)
-    guard let goal = Double(goalStr), goal > 0, 
-          let categoryId = Int64(catStr), !title.isEmpty else {
+    guard let goal = Double(goalStr), goal > 0, let categoryId = Int64(catStr), !title.isEmpty, !imageUrl.isEmpty else {
         return Response(status: .seeOther, headers: [.location: "/?error=invalid"])
     }
 
-    try Database.addProject(db: db, title: title, description: description, goal: goal, categoryId: categoryId)
+    try Database.addProject(db: db, title: title, description: description, goal: goal, categoryId: categoryId, imageUrl: imageUrl)
     return Response(status: .seeOther, headers: [.location: "/"])
 }
 
@@ -81,14 +81,14 @@ router.post("/project/:id/edit") { request, context -> Response in
     let description = params.first(where: { $0.name == "description" })?.value ?? ""
     let goalStr = params.first(where: { $0.name == "goal" })?.value ?? "0"
     let catStr = params.first(where: { $0.name == "categoryId" })?.value ?? "0"
+    let imageUrl = params.first(where: { $0.name == "imageUrl" })?.value ?? ""
 
     // VALIDATION
-    guard let goal = Double(goalStr), goal > 0, 
-          let categoryId = Int64(catStr), !title.isEmpty else {
+    guard let goal = Double(goalStr), goal > 0, let categoryId = Int64(catStr), !title.isEmpty, !imageUrl.isEmpty else {
         return Response(status: .seeOther, headers: [.location: "/project/\(pid)?error=invalid"])
     }
 
-    try Database.updateProject(db: db, id: pid, title: title, description: description, goal: goal, categoryId: categoryId)
+    try Database.updateProject(db: db, id: pid, title: title, description: description, goal: goal, categoryId: categoryId, imageUrl: imageUrl)
     return Response(status: .seeOther, headers: [.location: "/project/\(pid)"])
 }
 

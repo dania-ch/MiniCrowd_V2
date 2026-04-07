@@ -171,6 +171,7 @@ struct Views {
             let donateHTML = isFunded ? "<span style='color:#6366f1; font-weight:bold;'>Financé !</span>" : "<form action='/donate/\(p.id)' method='post' style='margin:0; display:flex; gap:0.5rem;'><input type='number' name='amount' min='1' step='1' value='10' style='width: 90px; margin:0;' required><button type='submit' style='margin:0;'>Donner</button></form>"
             return """
                 <article class="card">
+                <img src="\(p.imageUrl)" style="width: calc(100% + 3rem); margin: -1.5rem -1.5rem 1rem -1.5rem; height: 200px; object-fit: cover;">
                     <header style="margin-bottom: 0.5rem;">
                         <span class="badge">\(p.categoryName)</span>
                     </header>
@@ -220,6 +221,7 @@ struct Views {
                                         \(categoriesOptions)
                                     </select>
                                 </div>
+                                <input name="imageUrl" type="url" placeholder="Lien de l'image (URL)" required>
                                 <input name="description" placeholder="Courte description" required>
                                 <input name="goal" type="number" step="0.1" placeholder="Objectif financier (€)" required>
                                 <button type="submit">Créer mon projet</button>
@@ -290,7 +292,8 @@ struct Views {
 
                     \(renderError(error))
 
-                    <article class="card">
+                    <article class="card" style="padding: 0;">
+                    <img src="\(project.imageUrl)" style="width: 100%; height: 350px; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
                         <header>
                             <span class="badge">\(project.categoryName)</span>
                             <h2 style="margin-top: 0.5rem; margin-bottom: 0;">\(project.title)</h2>
@@ -322,7 +325,7 @@ struct Views {
                     </article>
 
                     <details style="margin-top: 2rem;">
-                        <summary role="button" class="secondary outline">✏️ Éditer le projet</summary>
+                        <summary role="button" class="secondary outline">Éditer le projet</summary>
                         <article>
                             <form action="/project/\(project.id)/edit" method="post">
                                 <div class="grid">
@@ -335,7 +338,9 @@ struct Views {
                                         </select>
                                     </label>
                                 </div>
-                                <label>Description
+                                <label>Lien de l'image (URL)
+                                 <input name="imageUrl" type="url" value="\(project.imageUrl)" required>
+                                </label>
                                     <input name="description" value="\(project.description)" required>
                                 </label>
                                 <label>Objectif (€)

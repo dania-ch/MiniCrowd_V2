@@ -16,6 +16,7 @@ struct Database {
     static let p_goal = Expression<Double>("goal")
     static let p_currentAmount = Expression<Double>("currentAmount")
     static let p_categoryId = Expression<Int64>("category_id")
+    static let p_imageUrl = Expression<String>("image_url")
 
     // Colonnes Categories
     static let c_id = Expression<Int64>("id")
@@ -39,6 +40,7 @@ struct Database {
             t.column(p_goal)
             t.column(p_currentAmount, defaultValue: 0.0)
             t.column(p_categoryId, references: categories, c_id)
+            t.column(p_imageUrl, defaultValue: "")
         })
 
         // Seed: Remplir les catégories si elles sont vides
@@ -85,7 +87,7 @@ struct Database {
         }
 
         return try db.prepare(query).map { row in
-            ProjectDetail(id: row[projects[p_id]], title: row[projects[p_title]], description: row[projects[p_description]], goal: row[projects[p_goal]], currentAmount: row[projects[p_currentAmount]], categoryId: row[projects[p_categoryId]], categoryName: row[categories[c_name]])
+            ProjectDetail(id: row[projects[p_id]], title: row[projects[p_title]], description: row[projects[p_description]], goal: row[projects[p_goal]], currentAmount: row[projects[p_currentAmount]], categoryId: row[projects[p_categoryId]], categoryName: row[categories[c_name]], imageUrl: row[projects[p_imageUrl]])
         }
     }
 
@@ -103,30 +105,33 @@ struct Database {
             goal: row[projects[p_goal]],
             currentAmount: row[projects[p_currentAmount]],
             categoryId: row[projects[p_categoryId]],
-            categoryName: row[categories[c_name]]
+            categoryName: row[categories[c_name]],
+            imageUrl: row[projects[p_imageUrl]]
         )
     }
 
     // CREATE
-    static func addProject(db: Connection, title: String, description: String, goal: Double, categoryId: Int64) throws {
+    static func addProject(db: Connection, title: String, description: String, goal: Double, categoryId: Int64, imageUrl: String) throws {
         let insert = projects.insert(
             self.p_title <- title,
             self.p_description <- description,
             self.p_goal <- goal,
             self.p_currentAmount <- 0.0,
-            self.p_categoryId <- categoryId
+            self.p_categoryId <- categoryId,
+            self.p_imageUrl <- imageUrl
         )
         try db.run(insert)
     }
 
     // UPDATE COMPLET (Bonus)
-    static func updateProject(db: Connection, id pid: Int64, title: String, description: String, goal: Double, categoryId: Int64) throws {
+    static func updateProject(db: Connection, id pid: Int64, title: String, description: String, goal: Double, categoryId: Int64, imageUrl: String) throws {
         let project = projects.filter(self.p_id == pid)
         try db.run(project.update(
             self.p_title <- title,
             self.p_description <- description,
             self.p_goal <- goal,
-            self.p_categoryId <- categoryId
+            self.p_categoryId <- categoryId,
+            self.p_imageUrl <- imageUrl
         ))
     }
 

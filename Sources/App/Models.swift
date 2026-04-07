@@ -14,6 +14,7 @@ struct Project: Codable, Sendable {
     var goal: Double
     var currentAmount: Double
     var categoryId: Int64
+    var imageUrl: String
 }
 
 // Structure combinee pour la vue (Jointure SQL)
@@ -25,4 +26,5 @@ struct ProjectDetail: Codable, Sendable {
     var currentAmount: Double
     var categoryId: Int64
     var categoryName: String
+    var imageUrl: String
 }
