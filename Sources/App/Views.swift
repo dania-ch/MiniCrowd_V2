@@ -27,11 +27,13 @@ struct Views {
         """
     }
 
-    // Affichage des erreurs
+   // Affichage des erreurs
     static func renderError(_ error: String?) -> String {
         guard let error = error else { return "" }
-        let msg = error == "invalid" ? "Veuillez remplir tous les champs correctement (L'objectif doit être supérieur à 0)." : error
-        return "<div class='error-box'>⚠️ <strong>Erreur:</strong> \(msg)</div>"
+        var msg = error
+        if error == "invalid" { msg = "Veuillez remplir tous les champs correctement (L'objectif doit être supérieur à 0)." }
+        if error == "invalid_amount" { msg = "Le montant du don doit être valide et supérieur à 0." }
+        return "<div class='error-box'>Erreur! <strong>Erreur:</strong> \(msg)</div>"
     }
 
     // VUE PRINCIPALE
@@ -57,8 +59,9 @@ struct Views {
                 
                 <footer style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
                     <a href="/project/\(p.id)" role="button" class="outline" style="flex: 1; text-align: center;">Détails & Édition</a>
-                    <form action="/donate/\(p.id)" method="post" style="margin:0;">
-                        <button type="submit" style="margin:0;">💸 10€</button>
+                    <form action="/donate/\(p.id)" method="post" style="margin:0; display:flex; gap:0.5rem;">
+                        <input type="number" name="amount" min="1" step="1" value="10" style="width: 90px; margin:0;" required>
+                        <button type="submit" style="margin:0;">Donner</button>
                     </form>
                 </footer>
             </article>
@@ -71,7 +74,7 @@ struct Views {
         \(head(title: "Accueil"))
         <body class="container">
             <nav>
-                <ul><li><strong>🚀 SwiftFund</strong></li></ul>
+                <ul><li><strong>MiniCrowd</strong></li></ul>
                 <ul><li><a href="/" class="secondary">Accueil</a></li></ul>
             </nav>
 
@@ -139,7 +142,7 @@ struct Views {
         \(head(title: project.title))
         <body class="container">
             <nav>
-                <ul><li><strong>🚀 SwiftFund</strong></li></ul>
+                <ul><li><strong>MiniCrowd</strong></li></ul>
                 <ul><li><a href="/" class="secondary">Retour aux projets</a></li></ul>
             </nav>
 
@@ -165,8 +168,9 @@ struct Views {
                     
                     <div>
                         <h4>Soutenir ce projet</h4>
-                        <form action="/donate/\(project.id)" method="post">
-                            <button type="submit" style="width: 100%;">💸 Faire un don de 10€</button>
+                        <form action="/donate/\(project.id)" method="post" class="grid" style="gap: 0.5rem;">
+                            <input type="number" name="amount" min="1" step="1" value="10" required>
+                            <button type="submit">Valider le don</button>
                         </form>
 
                         <hr>

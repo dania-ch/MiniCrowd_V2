@@ -95,14 +95,27 @@ router.post("/delete/:id") { _, context -> Response in
     return Response(status: .seeOther, headers: [.location: "/"])
 }
 
-// 6. DONATE (Update partiel)
+// 6. DONATE (Update partiel avec montant libre)
 router.post("/donate/:id") { request, context -> Response in
     guard let idStr = context.parameters.get("id"), let pid = Int64(idStr) else {
         return Response(status: .badRequest)
     }
-    try Database.donate(db: db, id: pid, amount: 10)
     
-    // Retour malin : on redirige vers l'accueil ou la page détail selon d'où l'utilisateur vient
+    // Récupération du montant depuis le formulaire
+    let params = try await parseBody(request: request)
+    let amountStr = params.first(where: { $0.name == "amount" })?.value ?? "0"
+    
+    // Validation du montant
+    guard let amount = Double(amountStr), amount > 0 else {
+        let referer = request.headers[.referer] ?? "/"
+        let separator = referer.contains("?") ? "&" : "?"
+        return Response(status: .seeOther, headers: [.location: "\(referer)\(separator)error=invalid_amount"])
+    }
+
+    // Ajout du don en base de données
+    try Database.donate(db: db, id: pid, amount: amount)
+    
+    // Retour malin : on redirige vers la page d'où l'utilisateur vient
     let referer = request.headers[.referer] ?? "/"
     return Response(status: .seeOther, headers: [.location: referer])
 }
