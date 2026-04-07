@@ -199,35 +199,37 @@ struct Views {
         let categoriesOptions = categories.map { "<option value=\"\($0.id ?? 0)\">\($0.name)</option>" }.joined()
         let filterCatOptions = categories.map { "<option value='\($0.id ?? 0)'>\($0.name)</option>" }.joined()
 
-        let rows = items.map { p in
+        let rows = items.enumerated().map { index, data in
+            let p = data
             // let progress = min(100, Int((p.currentAmount / p.goal) * 100))
             let isFunded = p.currentAmount >= p.goal
+            let delayClass = (index % 3 == 1) ? "delay-1" : ((index % 3 == 2) ? "delay-2" : "")
+            
             let donateHTML = isFunded 
-                ? "<span style='font-weight:600; color: #10b981;'>Financé ✅</span>" 
-                : "<form action='/donate/\(p.id)' method='post' class='donate-form'><input type='number' name='amount' min='1' step='1' value='10' required><button type='submit' class='outline'>Soutenir</button></form>"
+                ? "<div style='display:flex; align-items:center;'><span style='font-weight:700; color: #10b981; font-size: 0.9rem;'>Objectif atteint 🎉</span></div>" 
+                : "<form action='/donate/\(p.id)' method='post' style='margin:0; display:flex; gap:0.5rem; align-items: stretch;'><input type='number' name='amount' min='1' step='1' value='10' required style='width: 80px; margin:0;'><button type='submit' style='margin:0;'>Soutenir</button></form>"
             
             return """
-                <article class="card">
-                    <img src="\(p.imageUrl)" alt="\(p.title)" style="width: 100%; height: 220px; object-fit: cover; border-bottom: 1px solid var(--pico-muted-border-color);">
-                    
+                <article class="card animate-fade-up \(delayClass)">
+                    <img src="\(p.imageUrl)" alt="\(p.title)" style="width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid var(--card-border);">
                     <div class="card-body">
                         <header style="margin-bottom: 1rem;">
-                            <span class="badge">\(p.categoryName)</span>
+                            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #6366f1;">\(p.categoryName)</span>
                         </header>
-                        <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem; line-height: 1.2;">\(p.title)</h3>
-                        <p style="color: var(--pico-muted-color); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">\(p.description)</p>
+                        <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;">\(p.title)</h3>
+                        <p style="color: var(--pico-muted-color); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">\(p.description)</p>
                         
                         <div style="margin-top: auto;">
                             <div class="progress-text">
-                                <span><strong>\(p.currentAmount) €</strong> collectés</span>
-                                <span>Objectif: \(p.goal) €</span>
+                                <span>\(p.currentAmount) €</span>
+                                <span style="font-weight: 400;">/ \(p.goal) €</span>
                             </div>
                             <progress value="\(p.currentAmount)" max="\(p.goal)"></progress>
                             
-                            <hr style="margin: 1.5rem 0;">
+                            <hr style="margin: 1.25rem 0; border-color: var(--card-border);">
                             
-                            <footer style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
-                                <a href="/project/\(p.id)" role="button" class="secondary outline" style="flex: 1; text-align: center; margin: 0;">Détails</a>
+                            <footer style="display: flex; gap: 0.75rem; align-items: stretch; justify-content: space-between; height: 2.75rem;">
+                                <a href="/project/\(p.id)" role="button" class="secondary outline" style="margin: 0; padding: 0 1rem; display: flex; align-items: center; justify-content: center; border: 1px solid var(--card-border); background: var(--page-bg);">Détails</a>
                                 \(donateHTML)
                             </footer>
                         </div>
