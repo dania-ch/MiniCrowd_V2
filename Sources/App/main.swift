@@ -8,7 +8,10 @@ let router = Router()
 // Helper pour parser les requêtes POST x-www-form-urlencoded
 func parseBody(request: Request) async throws -> [URLQueryItem] {
     let buffer = try await request.body.collect(upTo: 1024 * 16)
-    let bodyString = String(buffer: buffer)
+    
+    // On convertit le buffer en String, puis on remplace les "+" par "%20" (l'encodage de l'espace)
+    let bodyString = String(buffer: buffer).replacingOccurrences(of: "+", with: "%20")
+    
     var components = URLComponents()
     components.percentEncodedQuery = bodyString
     return components.queryItems ?? []
