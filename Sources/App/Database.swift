@@ -59,36 +59,33 @@ struct Database {
         }
     }
 
-    // READ ALL avec Recherche et Tri (Bonus)
-    static func fetchProjects(db: Connection, search: String? = nil, sort: String? = nil) throws -> [ProjectDetail] {
+    // READ ALL avec Recherche, Tri et Filtres (Catégorie + Statut)
+    static func fetchProjects(db: Connection, search: String? = nil, sort: String? = nil, categoryId: Int64? = nil, status: String? = nil) throws -> [ProjectDetail] {
         var query = projects.join(categories, on: categories[c_id] == projects[p_categoryId])
 
-        // Recherche (Bonus)
         if let search = search, !search.isEmpty {
             let pattern = "%\(search)%"
             query = query.filter(projects[p_title].like(pattern) || projects[p_description].like(pattern))
         }
 
-        // Tri (Bonus)
+        if let catId = categoryId, catId > 0 {
+            query = query.filter(projects[p_categoryId] == catId)
+        }
+
+        if status == "funded" {
+            query = query.filter(projects[p_currentAmount] >= projects[p_goal])
+        } else if status == "ongoing" {
+            query = query.filter(projects[p_currentAmount] < projects[p_goal])
+        }
+
         switch sort {
-        case "goal":
-            query = query.order(projects[p_goal].desc)
-        case "title":
-            query = query.order(projects[p_title].asc)
-        default: // "newest" par défaut
-            query = query.order(projects[p_id].desc)
+        case "goal": query = query.order(projects[p_goal].desc)
+        case "title": query = query.order(projects[p_title].asc)
+        default: query = query.order(projects[p_id].desc)
         }
 
         return try db.prepare(query).map { row in
-            ProjectDetail(
-                id: row[projects[p_id]],
-                title: row[projects[p_title]],
-                description: row[projects[p_description]],
-                goal: row[projects[p_goal]],
-                currentAmount: row[projects[p_currentAmount]],
-                categoryId: row[projects[p_categoryId]],
-                categoryName: row[categories[c_name]]
-            )
+            ProjectDetail(id: row[projects[p_id]], title: row[projects[p_title]], description: row[projects[p_description]], goal: row[projects[p_goal]], currentAmount: row[projects[p_currentAmount]], categoryId: row[projects[p_categoryId]], categoryName: row[categories[c_name]])
         }
     }
 

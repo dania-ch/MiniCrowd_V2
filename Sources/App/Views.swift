@@ -163,6 +163,7 @@ struct Views {
         let categoriesOptions = categories.map {
             "<option value=\"\($0.id ?? 0)\">\($0.name)</option>"
         }.joined()
+        let filterCatOptions = categories.map { "<option value='\($0.id ?? 0)'>\($0.name)</option>" }.joined()
 
         let rows = items.map { p in
             let progress = min(100, Int((p.currentAmount / p.goal) * 100))
@@ -228,15 +229,29 @@ struct Views {
 
                     <hr>
 
-                    <form action="/" method="get" class="grid" style="margin-bottom: 2rem;">
-                        <input type="search" name="search" placeholder="Rechercher un projet..." value="\(search ?? "")">
-                        <select name="sort" onchange="this.form.submit()">
-                            <option value="newest" \(sort == "newest" ? "selected" : "")>Plus récents</option>
-                            <option value="goal" \(sort == "goal" ? "selected" : "")>Objectif le plus haut</option>
-                            <option value="title" \(sort == "title" ? "selected" : "")>Ordre alphabétique</option>
-                        </select>
-                        <button type="submit" class="outline">Filtrer</button>
-                    </form>
+                   <form action="/" method="get" style="margin-bottom: 2rem; background: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <div class="grid">
+                    <input type="search" name="search" placeholder="Mots-clés..." value="\(search ?? "")">
+                    
+                    <select name="categoryId">
+                        <option value="0">Toutes les catégories</option>
+                        \(filterCatOptions)
+                    </select>
+
+                    <select name="status">
+                        <option value="all">Tous les statuts</option>
+                        <option value="ongoing">En cours</option>
+                        <option value="funded">Financés</option>
+                    </select>
+
+                    <select name="sort">
+                        <option value="newest">Plus récents</option>
+                        <option value="goal">Objectif</option>
+                        <option value="title">Nom</option>
+                    </select>
+                </div>
+                <button type="submit" class="outline" style="margin:0; width: 100%;">🔍 Appliquer les filtres</button>
+                </form>
 
                     <div class="grid-cards">
                         \(items.isEmpty ? "<p style='grid-column: 1/-1; text-align:center;'>Aucun projet trouvé.</p>" : rows)

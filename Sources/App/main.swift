@@ -19,17 +19,20 @@ func parseBody(request: Request) async throws -> [URLQueryItem] {
 
 // --- ROUTES ---
 
-// 1. HOME (Read All + Sort + Search)
+// 1. HOME (Read All + Filtres avancés)
 router.get("/") { request, _ -> HTML in
-    // Parsing des paramètres GET ?search=xxx&sort=xxx&error=xxx
     let components = URLComponents(string: request.uri.string)
     let queryItems = components?.queryItems
+    
     let search = queryItems?.first(where: { $0.name == "search" })?.value
     let sort = queryItems?.first(where: { $0.name == "sort" })?.value
+    let status = queryItems?.first(where: { $0.name == "status" })?.value
+    let catIdStr = queryItems?.first(where: { $0.name == "categoryId" })?.value ?? "0"
+    let categoryId = Int64(catIdStr)
     let error = queryItems?.first(where: { $0.name == "error" })?.value
 
     let categories = try Database.fetchAllCategories(db: db)
-    let projects = try Database.fetchProjects(db: db, search: search, sort: sort)
+    let projects = try Database.fetchProjects(db: db, search: search, sort: sort, categoryId: categoryId, status: status)
     
     return Views.renderIndex(items: projects, categories: categories, search: search, sort: sort, error: error)
 }
