@@ -5,79 +5,113 @@ import Hummingbird
 let db = try Database.setup()
 let router = Router()
 
-// HOME + SEARCH
-router.get("/") { request, _ -> HTML in
-    let keyword = request.uri.query?.split(separator: "=").last ?? ""
-
-    let projects = keyword.isEmpty
-        ? try Database.fetchAllProjects(db: db)
-        : try Database.searchProjects(db: db, keyword: String(keyword))
-
-    return Views.renderIndex(items: projects)
+// Helper pour parser les requêtes POST x-www-form-urlencoded
+func parseBody(request: Request) async throws -> [URLQueryItem] {
+    let buffer = try await request.body.collect(upTo: 1024 * 16)
+    let bodyString = String(buffer: buffer)
+    var components = URLComponents()
+    components.percentEncodedQuery = bodyString
+    return components.queryItems ?? []
 }
 
-// CREATE
+// --- ROUTES ---
+
+// 1. HOME (Read All + Sort + Search)
+router.get("/") { request, _ -> HTML in
+    // Parsing des paramètres GET ?search=xxx&sort=xxx&error=xxx
+    let components = URLComponents(string: request.uri.string)
+    let queryItems = components?.queryItems
+    let search = queryItems?.first(where: { $0.name == "search" })?.value
+    let sort = queryItems?.first(where: { $0.name == "sort" })?.value
+    let error = queryItems?.first(where: { $0.name == "error" })?.value
+
+    let categories = try Database.fetchAllCategories(db: db)
+    let projects = try Database.fetchProjects(db: db, search: search, sort: sort)
+    
+    return Views.renderIndex(items: projects, categories: categories, search: search, sort: sort, error: error)
+}
+
+// 2. DETAIL PAGE (Read One)
+router.get("/project/:id") { request, context -> HTML in
+    guard let idStr = context.parameters.get("id"), let pid = Int64(idStr),
+          let project = try Database.fetchProject(db: db, id: pid) else {
+        return Views.renderIndex(items: [], categories: [], search: nil, sort: nil, error: "Projet introuvable")
+    }
+    
+    let components = URLComponents(string: request.uri.string)
+    let error = components?.queryItems?.first(where: { $0.name == "error" })?.value
+    let categories = try Database.fetchAllCategories(db: db)
+    
+    return Views.renderDetail(project: project, categories: categories, error: error)
+}
+
+// 3. ADD PROJECT (Create + Validation)
 router.post("/add") { request, _ -> Response in
-    let buffer = try await request.body.collect(upTo: 1024 * 16)
-    let body = String(buffer: buffer)
+    let params = try await parseBody(request: request)
+    
+    let title = params.first(where: { $0.name == "title" })?.value?.trimmingCharacters(in: .whitespaces) ?? ""
+    let description = params.first(where: { $0.name == "description" })?.value ?? ""
+    let goalStr = params.first(where: { $0.name == "goal" })?.value ?? "0"
+    let catStr = params.first(where: { $0.name == "categoryId" })?.value ?? "0"
 
-    var comp = URLComponents()
-    comp.percentEncodedQuery = body
-
-    let title = comp.queryItems?.first(where: {$0.name=="title"})?.value ?? ""
-    let description = comp.queryItems?.first(where: {$0.name=="description"})?.value ?? ""
-    let goalStr = comp.queryItems?.first(where: {$0.name=="goal"})?.value ?? "0"
-    let category = comp.queryItems?.first(where: {$0.name=="category"})?.value ?? "General"
-
-    guard let goal = Double(goalStr), !title.isEmpty else {
-        return Response(status: .badRequest)
+    // VALIDATION (Bonus)
+    guard let goal = Double(goalStr), goal > 0, 
+          let categoryId = Int64(catStr), !title.isEmpty else {
+        return Response(status: .seeOther, headers: [.location: "/?error=invalid"])
     }
 
-    try Database.addProject(db: db, title: title, description: description, goal: goal, category: category)
-
+    try Database.addProject(db: db, title: title, description: description, goal: goal, categoryId: categoryId)
     return Response(status: .seeOther, headers: [.location: "/"])
 }
 
-// DELETE
-router.post("/delete/:id") { _, ctx -> Response in
-    let id = Int64(ctx.parameters.get("id")!)!
-    try Database.deleteProject(db: db, id: id)
+// 4. EDIT PROJECT (Update)
+router.post("/project/:id/edit") { request, context -> Response in
+    guard let idStr = context.parameters.get("id"), let pid = Int64(idStr) else {
+        return Response(status: .badRequest)
+    }
+    
+    let params = try await parseBody(request: request)
+    let title = params.first(where: { $0.name == "title" })?.value?.trimmingCharacters(in: .whitespaces) ?? ""
+    let description = params.first(where: { $0.name == "description" })?.value ?? ""
+    let goalStr = params.first(where: { $0.name == "goal" })?.value ?? "0"
+    let catStr = params.first(where: { $0.name == "categoryId" })?.value ?? "0"
+
+    // VALIDATION
+    guard let goal = Double(goalStr), goal > 0, 
+          let categoryId = Int64(catStr), !title.isEmpty else {
+        return Response(status: .seeOther, headers: [.location: "/project/\(pid)?error=invalid"])
+    }
+
+    try Database.updateProject(db: db, id: pid, title: title, description: description, goal: goal, categoryId: categoryId)
+    return Response(status: .seeOther, headers: [.location: "/project/\(pid)"])
+}
+
+// 5. DELETE (Delete)
+router.post("/delete/:id") { _, context -> Response in
+    guard let idStr = context.parameters.get("id"), let pid = Int64(idStr) else {
+        return Response(status: .badRequest)
+    }
+    try Database.deleteProject(db: db, id: pid)
     return Response(status: .seeOther, headers: [.location: "/"])
 }
 
-// DONATE
-router.post("/donate/:id") { _, ctx -> Response in
-    let id = Int64(ctx.parameters.get("id")!)!
-    try Database.donate(db: db, id: id, amount: 10)
-    return Response(status: .seeOther, headers: [.location: "/"])
+// 6. DONATE (Update partiel)
+router.post("/donate/:id") { request, context -> Response in
+    guard let idStr = context.parameters.get("id"), let pid = Int64(idStr) else {
+        return Response(status: .badRequest)
+    }
+    try Database.donate(db: db, id: pid, amount: 10)
+    
+    // Retour malin : on redirige vers l'accueil ou la page détail selon d'où l'utilisateur vient
+    let referer = request.headers[.referer] ?? "/"
+    return Response(status: .seeOther, headers: [.location: referer])
 }
 
-// DETAIL PAGE (BONUS 🔥)
-router.get("/project/:id") { _, ctx -> HTML in
-    let id = Int64(ctx.parameters.get("id")!)!
-    let project = try Database.getById(db: db, id: id)!
-    return Views.renderDetail(project: project)
-}
+// --- SERVER SETUP ---
+let app = Application(
+    router: router,
+    configuration: .init(address: .hostname("0.0.0.0", port: 8080))
+)
 
-// UPDATE
-router.post("/update/:id") { request, ctx -> Response in
-    let id = Int64(ctx.parameters.get("id")!)!
-
-    let buffer = try await request.body.collect(upTo: 1024 * 16)
-    let body = String(buffer: buffer)
-
-    var comp = URLComponents()
-    comp.percentEncodedQuery = body
-
-    let title = comp.queryItems?.first(where: {$0.name=="title"})?.value ?? ""
-    let description = comp.queryItems?.first(where: {$0.name=="description"})?.value ?? ""
-    let goal = Double(comp.queryItems?.first(where: {$0.name=="goal"})?.value ?? "0") ?? 0
-
-    try Database.updateProject(db: db, id: id, title: title, description: description, goal: goal)
-
-    return Response(status: .seeOther, headers: [.location: "/"])
-}
-
-let app = Application(router: router, configuration: .init(address: .hostname("0.0.0.0", port: 8080)))
-print("🚀 http://localhost:8080")
+print("🚀 Crowdfunding running on http://localhost:8080")
 try await app.runService()
