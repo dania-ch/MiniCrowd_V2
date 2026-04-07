@@ -12,128 +12,148 @@ struct Views {
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
                 <title>\(title) - MiniCrowd</title>
                 <style>
-                    /* Variables personnalisées (Thème Violet/Indigo) */
+                    /* Design Système Premium & Espacements (Whitespace) */
                     :root {
-                        --pico-primary: #6366f1; 
-                        --pico-primary-hover: #4f46e5;
-                        --pico-border-radius: 1rem;
-                        --pico-font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                        --pico-border-radius: 0.75rem;
+                        --pico-font-family: system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+                        --pico-spacing: 1.5rem; /* Espacement de base plus généreux */
                     }
 
-                    /* Fond de page très légèrement gris pour faire ressortir les cartes blanches */
+                    /* Theme Clair */
+                    [data-theme="light"] {
+                        --pico-primary: #0f172a;
+                        --pico-primary-hover: #334155;
+                        --pico-background-color: #ffffff;
+                        --pico-form-element-background-color: #ffffff;
+                        --page-bg: #f8fafc;
+                        --soft-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+                        --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+                    }
+
+                    /* Theme Sombre */
+                    [data-theme="dark"] {
+                        --pico-primary: #f8fafc;
+                        --pico-primary-hover: #cbd5e1;
+                        --pico-background-color: #0f172a;
+                        --pico-form-element-background-color: #1e293b;
+                        --page-bg: #020617;
+                        --soft-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+                        --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+                    }
+
                     body {
-                        background-color: #f8fafc;
+                        background-color: var(--page-bg);
                     }
 
-                    /* Navigation : Sticky + Effet verre flouté (Glassmorphism) */
+                    /* Navigation aérée */
                     nav {
-                        position: sticky;
-                        top: 0;
-                        z-index: 100;
-                        background: rgba(255, 255, 255, 0.7);
-                        backdrop-filter: blur(12px);
-                        -webkit-backdrop-filter: blur(12px);
-                        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-                        padding: 1rem 0;
-                        margin-bottom: 2rem;
+                        border-bottom: 1px solid var(--pico-muted-border-color);
+                        padding: 1.25rem 0;
+                        margin-bottom: 3rem;
+                        background-color: var(--pico-background-color);
                     }
 
-                    /* En-tête principal (Hero) : Dégradé et ombre colorée */
+                    /* Hero section : Plus de padding, texte plus lisible */
                     .hero {
                         padding: 4rem 2rem;
+                        background-color: var(--pico-background-color);
+                        border: 1px solid var(--pico-muted-border-color);
+                        border-radius: var(--pico-border-radius);
+                        margin-bottom: 4rem;
+                        box-shadow: var(--soft-shadow);
                         text-align: center;
-                        background: linear-gradient(135deg, #4f46e5, #ec4899);
-                        color: white;
-                        border-radius: 1.5rem;
-                        margin-bottom: 3rem;
-                        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
                     }
-                    .hero h1 { color: white; font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem; }
-                    .hero p { font-size: 1.25rem; opacity: 0.9; margin: 0; }
+                    .hero h1 { font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; }
+                    .hero p { font-size: 1.15rem; color: var(--pico-muted-color); margin: 0; line-height: 1.6; }
 
-                    /* Cartes de projets : Douces et interactives */
+                    /* Cartes : Structure propre SANS marges négatives */
                     .card {
-                        background: white;
-                        border: 1px solid #f1f5f9;
-                        border-radius: 1.5rem;
-                        padding: 1.5rem;
-                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                        background-color: var(--pico-background-color);
+                        border: 1px solid var(--pico-muted-border-color);
+                        border-radius: var(--pico-border-radius);
+                        box-shadow: var(--soft-shadow);
+                        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
                         display: flex;
                         flex-direction: column;
                         height: 100%;
+                        padding: 0; /* On retire le padding de la carte globale */
+                        overflow: hidden; /* Pour que l'image respecte les coins arrondis */
                     }
                     .card:hover {
-                        transform: translateY(-8px);
-                        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-                        border-color: #e2e8f0;
+                        transform: translateY(-4px);
+                        box-shadow: var(--hover-shadow);
+                        border-color: var(--pico-primary);
+                    }
+                    
+                    /* Contenu de la carte (gère les espaces internes) */
+                    .card-body {
+                        padding: 1.5rem;
+                        display: flex;
+                        flex-direction: column;
+                        flex-grow: 1;
                     }
 
-                    /* Badges de catégories plus ronds et colorés */
+                    /* Badges */
                     .badge {
                         display: inline-block;
-                        background: #e0e7ff;
-                        color: #4338ca;
-                        padding: 0.3rem 0.8rem;
-                        border-radius: 9999px;
+                        background: var(--page-bg);
+                        border: 1px solid var(--pico-muted-border-color);
+                        color: var(--pico-color);
+                        padding: 0.25rem 0.6rem;
+                        border-radius: 6px;
                         font-size: 0.75rem;
-                        font-weight: 700;
+                        font-weight: 600;
                         text-transform: uppercase;
                         letter-spacing: 0.5px;
                     }
 
-                    /* Grille responsive */
-                    .grid-cards {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                        gap: 2rem;
+                    /* Barre de filtres : Grid avec espacements gérés par gap */
+                    .filter-bar {
+                        margin-bottom: 3rem;
+                        background-color: var(--pico-background-color);
+                        padding: 1.5rem;
+                        border-radius: var(--pico-border-radius);
+                        border: 1px solid var(--pico-muted-border-color);
+                        box-shadow: var(--soft-shadow);
+                    }
+                    .filter-bar .grid {
+                        gap: 1.5rem; /* Espace parfait entre les menus déroulants */
                     }
 
-                    /* Barre de progression : Dégradé et style moderne */
+                    /* Grille de cartes aérée */
+                    .grid-cards {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+                        gap: 2.5rem; /* Plus d'espace entre les projets */
+                    }
+
+                    /* Typographie et barre de progression */
                     .progress-text {
                         display: flex;
                         justify-content: space-between;
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                        margin-bottom: 0.5rem;
-                        color: #475569;
+                        font-size: 0.85rem;
+                        font-weight: 500;
+                        margin-bottom: 0.75rem;
+                        color: var(--pico-muted-color);
                     }
-                    progress {
-                        border-radius: 999px;
-                        height: 12px;
-                        background-color: #e2e8f0;
-                        overflow: hidden;
-                        border: none;
-                    }
-                    progress::-webkit-progress-bar {
-                        background-color: #e2e8f0;
-                    }
-                    progress::-webkit-progress-value {
-                        background: linear-gradient(90deg, #6366f1, #a855f7);
-                        border-radius: 999px;
-                    }
-                    progress::-moz-progress-bar {
-                        background: linear-gradient(90deg, #6366f1, #a855f7);
-                        border-radius: 999px;
-                    }
+                    progress { height: 8px; border-radius: 4px; border: none; background-color: var(--pico-muted-border-color); }
+                    progress::-webkit-progress-bar { background-color: var(--pico-muted-border-color); }
+                    progress::-webkit-progress-value { background-color: var(--pico-primary); border-radius: 4px; }
+                    progress::-moz-progress-bar { background-color: var(--pico-primary); border-radius: 4px; }
 
-                    /* Boutons stylisés */
-                    button {
-                        border-radius: 9999px;
-                        font-weight: 600;
-                        transition: transform 0.1s;
+                    /* Boutons de formulaires intègres */
+                    .donate-form {
+                        margin: 0;
+                        display: flex;
+                        gap: 0.75rem;
+                        align-items: center;
                     }
-                    button:active { transform: scale(0.97); }
-
-                    /* Box d'erreur élégante */
-                    .error-box {
-                        background-color: #fef2f2;
-                        border-left: 4px solid #ef4444;
-                        color: #991b1b;
-                        padding: 1rem 1.5rem;
-                        margin-bottom: 2rem;
-                        border-radius: 0.5rem;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                    .donate-form input {
+                        margin: 0; /* Enlève la marge basse par défaut de PicoCSS */
+                        width: 90px;
+                    }
+                    .donate-form button {
+                        margin: 0;
                     }
                 </style>
             </head>
@@ -144,15 +164,31 @@ struct Views {
     static func renderError(_ error: String?) -> String {
         guard let error = error else { return "" }
         var msg = error
-        if error == "invalid" {
-            msg =
-                "Veuillez remplir tous les champs correctement (L'objectif doit être supérieur à 0)."
-        }
-        if error == "invalid_amount" {
-            msg = "Le montant du don doit être valide et supérieur à 0."
-        }
-        return "<div class='error-box'>Erreur! <strong>Erreur:</strong> \(msg)</div>"
+        if error == "invalid" { msg = "Veuillez remplir tous les champs correctement (L'objectif doit être supérieur à 0)." }
+        if error == "invalid_amount" { msg = "Le montant du don doit être valide et supérieur à 0." }
+        return """
+            <div style="background-color: var(--pico-background-color); border-left: 4px solid #ef4444; padding: 1rem 1.5rem; margin-bottom: 2rem; border-radius: 4px; box-shadow: var(--soft-shadow);">
+                <strong>Action requise :</strong> \(msg)
+            </div>
+            """
     }
+
+    // Le script JavaScript gérant le Dark/Light mode
+    static let themeScript = """
+    <script>
+        const html = document.documentElement;
+        const toggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        html.setAttribute('data-theme', savedTheme);
+        
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+    </script>
+    """
 
     // VUE PRINCIPALE
     static func renderIndex(
@@ -160,34 +196,42 @@ struct Views {
         error: String?
     ) -> HTML {
 
-        let categoriesOptions = categories.map {
-            "<option value=\"\($0.id ?? 0)\">\($0.name)</option>"
-        }.joined()
+        let categoriesOptions = categories.map { "<option value=\"\($0.id ?? 0)\">\($0.name)</option>" }.joined()
         let filterCatOptions = categories.map { "<option value='\($0.id ?? 0)'>\($0.name)</option>" }.joined()
 
         let rows = items.map { p in
-            let progress = min(100, Int((p.currentAmount / p.goal) * 100))
+            // let progress = min(100, Int((p.currentAmount / p.goal) * 100))
             let isFunded = p.currentAmount >= p.goal
-            let donateHTML = isFunded ? "<span style='color:#6366f1; font-weight:bold;'>Financé !</span>" : "<form action='/donate/\(p.id)' method='post' style='margin:0; display:flex; gap:0.5rem;'><input type='number' name='amount' min='1' step='1' value='10' style='width: 90px; margin:0;' required><button type='submit' style='margin:0;'>Donner</button></form>"
+            let donateHTML = isFunded 
+                ? "<span style='font-weight:600; color: #10b981;'>Financé ✅</span>" 
+                : "<form action='/donate/\(p.id)' method='post' class='donate-form'><input type='number' name='amount' min='1' step='1' value='10' required><button type='submit' class='outline'>Soutenir</button></form>"
+            
             return """
                 <article class="card">
-                <img src="\(p.imageUrl)" style="width: calc(100% + 3rem); margin: -1.5rem -1.5rem 1rem -1.5rem; height: 200px; object-fit: cover;">
-                    <header style="margin-bottom: 0.5rem;">
-                        <span class="badge">\(p.categoryName)</span>
-                    </header>
-                    <h3 style="margin-bottom: 0.5rem;">\(p.title)</h3>
-                    <p style="color: var(--pico-muted-color); margin-bottom: 1.5rem;">\(p.description)</p>
+                    <img src="\(p.imageUrl)" alt="\(p.title)" style="width: 100%; height: 220px; object-fit: cover; border-bottom: 1px solid var(--pico-muted-border-color);">
                     
-                    <div class="progress-text">
-                        <span><strong>\(p.currentAmount) €</strong> collectés</span>
-                        <span>Objectif: \(p.goal) €</span>
+                    <div class="card-body">
+                        <header style="margin-bottom: 1rem;">
+                            <span class="badge">\(p.categoryName)</span>
+                        </header>
+                        <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem; line-height: 1.2;">\(p.title)</h3>
+                        <p style="color: var(--pico-muted-color); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.6;">\(p.description)</p>
+                        
+                        <div style="margin-top: auto;">
+                            <div class="progress-text">
+                                <span><strong>\(p.currentAmount) €</strong> collectés</span>
+                                <span>Objectif: \(p.goal) €</span>
+                            </div>
+                            <progress value="\(p.currentAmount)" max="\(p.goal)"></progress>
+                            
+                            <hr style="margin: 1.5rem 0;">
+                            
+                            <footer style="display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
+                                <a href="/project/\(p.id)" role="button" class="secondary outline" style="flex: 1; text-align: center; margin: 0;">Détails</a>
+                                \(donateHTML)
+                            </footer>
+                        </div>
                     </div>
-                    <progress value="\(p.currentAmount)" max="\(p.goal)"></progress>
-                    
-                    <footer style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
-                        <a href="/project/\(p.id)" role="button" class="outline" style="flex: 1; text-align: center;">Détails & Édition</a>
-                        \(donateHTML)
-                    </footer>
                 </article>
                 """
         }.joined()
@@ -195,84 +239,101 @@ struct Views {
         return HTML(
             content: """
                 <!DOCTYPE html>
-                <html data-theme="light">
-                \(head(title: "Accueil"))
+                <html lang="fr" data-theme="light">
+                \(head(title: "Explorer les projets"))
                 <body class="container">
                     <nav>
-                        <ul><li><strong>MiniCrowd</strong></li></ul>
-                        <ul><li><a href="/" class="secondary">Accueil</a></li></ul>
+                        <ul><li><strong style="font-size: 1.25rem;">MiniCrowd</strong></li></ul>
+                        <ul>
+                            <li><a href="/" class="secondary">Explorer</a></li>
+                            <li><button id="theme-toggle" class="outline" style="border:none; padding:0.5rem; font-size: 1.25rem; cursor: pointer;" title="Changer de thème">🌓</button></li>
+                        </ul>
                     </nav>
 
                     <div class="hero">
-                        <h1>Financez les projets de demain</h1>
-                        <p>Découvrez, créez et soutenez des idées exceptionnelles.</p>
+                        <h1>Financez l'innovation.</h1>
+                        <p>Découvrez, créez et soutenez les idées de demain grâce au financement participatif.</p>
                     </div>
 
                     \(renderError(error))
 
-                    <details>
-                        <summary role="button" class="secondary outline">Lancer un nouveau projet</summary>
-                        <article>
-                            <form action="/add" method="post">
-                                <div class="grid">
-                                    <input name="title" placeholder="Titre du projet" required>
-                                    <select name="categoryId" required>
-                                        <option value="" disabled selected>Catégorie</option>
-                                        \(categoriesOptions)
-                                    </select>
+                    <details style="margin-bottom: 3rem;">
+                        <summary role="button" class="secondary outline">-Lancer un nouveau projet</summary>
+                        <article class="card" style="margin-top: 1rem; padding: 2rem;">
+                            <form action="/add" method="post" style="margin: 0;">
+                                <div class="grid" style="gap: 1.5rem; margin-bottom: 1.5rem;">
+                                    <label>Titre du projet
+                                        <input name="title" placeholder="Ex: Mon super jeu vidéo" required style="margin-bottom: 0;">
+                                    </label>
+                                    <label>Catégorie
+                                        <select name="categoryId" required style="margin-bottom: 0;">
+                                            <option value="" disabled selected>Choisir une catégorie...</option>
+                                            \(categoriesOptions)
+                                        </select>
+                                    </label>
                                 </div>
-                                <input name="imageUrl" type="url" placeholder="Lien de l'image (URL)" required>
-                                <input name="description" placeholder="Courte description" required>
-                                <input name="goal" type="number" step="0.1" placeholder="Objectif financier (€)" required>
-                                <button type="submit">Créer mon projet</button>
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label>Image de couverture (URL)
+                                        <input name="imageUrl" type="url" placeholder="https://..." required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label>Description courte
+                                        <input name="description" placeholder="En quelques mots, quel est votre projet ?" required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 2rem;">
+                                    <label>Objectif financier (€)
+                                        <input name="goal" type="number" step="0.1" placeholder="5000" required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <button type="submit" style="margin: 0; width: 100%;">Publier le projet</button>
                             </form>
                         </article>
                     </details>
 
-                    <hr>
-
-                   <form action="/" method="get" style="margin-bottom: 2rem; background: #fff; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <div class="grid">
-                    <input type="search" name="search" placeholder="Mots-clés..." value="\(search ?? "")">
-                    
-                    <select name="categoryId">
-                        <option value="0">Toutes les catégories</option>
-                        \(filterCatOptions)
-                    </select>
-
-                    <select name="status">
-                        <option value="all">Tous les statuts</option>
-                        <option value="ongoing">En cours</option>
-                        <option value="funded">Financés</option>
-                    </select>
-
-                    <select name="sort">
-                        <option value="newest">Plus récents</option>
-                        <option value="goal">Objectif</option>
-                        <option value="title">Nom</option>
-                    </select>
-                </div>
-                <button type="submit" class="outline" style="margin:0; width: 100%;">🔍 Appliquer les filtres</button>
-                </form>
+                    <form action="/" method="get" class="filter-bar">
+                        <div class="grid">
+                            <input type="search" name="search" placeholder="Rechercher par mot-clé..." value="\(search ?? "")" style="margin: 0;">
+                            <select name="categoryId" style="margin: 0;">
+                                <option value="0">Toutes les catégories</option>
+                                \(filterCatOptions)
+                            </select>
+                            <select name="status" style="margin: 0;">
+                                <option value="all">Tous les statuts</option>
+                                <option value="ongoing">En cours de financement</option>
+                                <option value="funded">Objectif atteint</option>
+                            </select>
+                            <select name="sort" style="margin: 0;">
+                                <option value="newest">Les plus récents</option>
+                                <option value="goal">Objectif financier</option>
+                                <option value="title">Ordre alphabétique</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="secondary" style="margin-top: 1.5rem; margin-bottom: 0; width: 100%;">Appliquer les filtres</button>
+                    </form>
 
                     <div class="grid-cards">
-                        \(items.isEmpty ? "<p style='grid-column: 1/-1; text-align:center;'>Aucun projet trouvé.</p>" : rows)
+                        \(items.isEmpty ? "<p style='grid-column: 1/-1; text-align:center; padding: 4rem; background: var(--pico-background-color); border-radius: var(--pico-border-radius); border: 1px dashed var(--pico-muted-border-color); color: var(--pico-muted-color);'>Aucun projet trouvé avec ces critères.</p>" : rows)
                     </div>
                     
-                    <footer style="margin-top: 3rem; text-align:center; color: var(--pico-muted-color);">
-                        <small>Projet CRUD iOS 2026 - Université Paris 8</small>
+                    <footer style="margin-top: 5rem; padding-bottom: 3rem; text-align:center; color: var(--pico-muted-color); font-size: 0.9rem;">
+                        Projet CRUD iOS 2026 - Université Paris 8
                     </footer>
+                    \(themeScript)
                 </body>
                 </html>
                 """)
     }
 
-    // VUE DE DETAIL ET EDITION (Bonus)
-    static func renderDetail(project: ProjectDetail, categories: [Category], error: String?) -> HTML
-    {
+    // VUE DE DETAIL ET EDITION
+    static func renderDetail(project: ProjectDetail, categories: [Category], error: String?) -> HTML {
         let progress = min(100, Int((project.currentAmount / project.goal) * 100))
         let isFunded = project.currentAmount >= project.goal
-        let donateHTML = isFunded ? "<div style='background:#dcfce7; border-left:4px solid #22c55e; color:#166534; padding:1rem;'><strong>Projet financé !</strong> Dons clôturés.</div>" : "<form action='/donate/\(project.id)' method='post' class='grid' style='gap: 0.5rem;'><input type='number' name='amount' min='1' step='1' value='10' required><button type='submit'>Valider le don</button></form>"
+        
+        let donateHTML = isFunded 
+            ? "<div style='background-color: var(--page-bg); border-left: 4px solid #10b981; padding: 1rem 1.5rem; border-radius: 4px;'><strong>🎉 Projet financé !</strong> Les dons sont clôturés.</div>" 
+            : "<form action='/donate/\(project.id)' method='post' class='donate-form' style='width:100%;'><input type='number' name='amount' min='1' step='1' value='10' style='flex:1;' required><button type='submit'>Valider le don</button></form>"
 
         let categoriesOptions = categories.map { c in
             let isSelected = c.id == project.categoryId ? "selected" : ""
@@ -282,74 +343,92 @@ struct Views {
         return HTML(
             content: """
                 <!DOCTYPE html>
-                <html data-theme="light">
+                <html lang="fr" data-theme="light">
                 \(head(title: project.title))
                 <body class="container">
                     <nav>
-                        <ul><li><strong>MiniCrowd</strong></li></ul>
-                        <ul><li><a href="/" class="secondary">Retour aux projets</a></li></ul>
+                        <ul><li><strong style="font-size: 1.25rem;">MiniCrowd</strong></li></ul>
+                        <ul>
+                            <li><a href="/" class="secondary">Retour à l'accueil</a></li>
+                            <li><button id="theme-toggle" class="outline" style="border:none; padding:0.5rem; font-size: 1.25rem; cursor: pointer;" title="Changer de thème">🌓</button></li>
+                        </ul>
                     </nav>
 
                     \(renderError(error))
 
-                    <article class="card" style="padding: 0;">
-                    <img src="\(project.imageUrl)" style="width: 100%; height: 350px; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
-                        <header>
-                            <span class="badge">\(project.categoryName)</span>
-                            <h2 style="margin-top: 0.5rem; margin-bottom: 0;">\(project.title)</h2>
-                        </header>
+                    <article class="card" style="margin-bottom: 3rem;">
+                        <img src="\(project.imageUrl)" style="width: 100%; height: 450px; object-fit: cover; border-bottom: 1px solid var(--pico-muted-border-color);">
                         
-                        <div class="grid">
-                            <div>
-                                <h4>À propos</h4>
-                                <p>\(project.description)</p>
-                                
-                                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                                    <h4>Progression : \(progress)%</h4>
-                                    <progress value="\(project.currentAmount)" max="\(project.goal)"></progress>
-                                    <p style="margin-top: 0.5rem; margin-bottom:0;"><strong>\(project.currentAmount) €</strong> sur \(project.goal) €</p>
-                                </div>
-                            </div>
+                        <div class="card-body" style="padding: 3rem;">
+                            <header style="margin-bottom: 2.5rem; text-align: center;">
+                                <span class="badge" style="margin-bottom: 1rem;">\(project.categoryName)</span>
+                                <h1 style="margin: 0; font-size: 2.5rem; letter-spacing: -0.03em;">\(project.title)</h1>
+                            </header>
                             
-                            <div>
-                                <h4>Soutenir ce projet</h4>
-                                \(donateHTML)
+                            <div class="grid" style="gap: 4rem;">
+                                <div>
+                                    <h4 style="color: var(--pico-muted-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;">À propos du projet</h4>
+                                    <p style="font-size: 1.15rem; line-height: 1.7;">\(project.description)</p>
+                                    
+                                    <div style="margin-top: 3rem; background-color: var(--page-bg); padding: 2rem; border-radius: var(--pico-border-radius); border: 1px solid var(--pico-muted-border-color);">
+                                        <h4 style="margin-bottom: 1rem;">Progression actuelle : \(progress)%</h4>
+                                        <progress value="\(project.currentAmount)" max="\(project.goal)"></progress>
+                                        <p style="margin-top: 1rem; margin-bottom:0; font-size: 1.1rem; color: var(--pico-muted-color);"><strong>\(project.currentAmount) €</strong> récoltés sur un objectif de \(project.goal) €</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div style="background-color: var(--pico-background-color); padding: 2rem; border-radius: var(--pico-border-radius); border: 1px solid var(--pico-muted-border-color); box-shadow: var(--soft-shadow); margin-bottom: 2rem;">
+                                        <h4 style="color: var(--pico-muted-color); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1.5rem;">Soutenir ce projet</h4>
+                                        \(donateHTML)
+                                    </div>
 
-                                <hr>
-                                <h4>Zone de danger</h4>
-                                <form action="/delete/\(project.id)" method="post">
-                                    <button type="submit" class="secondary" style="background-color: #ef4444; border-color: #ef4444; width: 100%;">🗑 Supprimer le projet</button>
-                                </form>
+                                    <div style="background-color: var(--page-bg); padding: 2rem; border-radius: var(--pico-border-radius); border: 1px dashed #ef4444;">
+                                        <h4 style="color: #ef4444; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1.5rem;">Zone d'administration</h4>
+                                        <form action="/delete/\(project.id)" method="post" style="margin:0;">
+                                            <button type="submit" class="outline" style="color: #ef4444; border-color: #ef4444; margin:0; width: 100%;">Supprimer définitivement</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </article>
 
-                    <details style="margin-top: 2rem;">
-                        <summary role="button" class="secondary outline">Éditer le projet</summary>
-                        <article>
-                            <form action="/project/\(project.id)/edit" method="post">
-                                <div class="grid">
-                                    <label>Titre
-                                        <input name="title" value="\(project.title)" required>
+                    <details style="margin-bottom: 5rem;">
+                        <summary role="button" class="secondary outline">Éditer les informations du projet</summary>
+                        <article class="card" style="margin-top: 1rem; padding: 2rem;">
+                            <form action="/project/\(project.id)/edit" method="post" style="margin: 0;">
+                                <div class="grid" style="gap: 1.5rem; margin-bottom: 1.5rem;">
+                                    <label>Titre du projet
+                                        <input name="title" value="\(project.title)" required style="margin-bottom: 0;">
                                     </label>
                                     <label>Catégorie
-                                        <select name="categoryId" required>
+                                        <select name="categoryId" required style="margin-bottom: 0;">
                                             \(categoriesOptions)
                                         </select>
                                     </label>
                                 </div>
-                                <label>Lien de l'image (URL)
-                                 <input name="imageUrl" type="url" value="\(project.imageUrl)" required>
-                                </label>
-                                    <input name="description" value="\(project.description)" required>
-                                </label>
-                                <label>Objectif (€)
-                                    <input name="goal" type="number" step="0.1" value="\(project.goal)" required>
-                                </label>
-                                <button type="submit">Enregistrer les modifications</button>
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label>Image de couverture (URL)
+                                     <input name="imageUrl" type="url" value="\(project.imageUrl)" required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label>Description détaillée
+                                        <input name="description" value="\(project.description)" required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <div style="margin-bottom: 2rem;">
+                                    <label>Objectif financier (€)
+                                        <input name="goal" type="number" step="0.1" value="\(project.goal)" required style="margin-bottom: 0;">
+                                    </label>
+                                </div>
+                                <button type="submit" style="margin: 0; width: 100%;">Mettre à jour le projet</button>
                             </form>
                         </article>
                     </details>
+                    
+                    \(themeScript)
                 </body>
                 </html>
                 """)

@@ -45,10 +45,10 @@ struct Database {
 
         // Seed: Remplir les catégories si elles sont vides
         if try db.scalar(categories.count) == 0 {
-            try db.run(categories.insert(c_name <- "Innovation & Tech 💻"))
-            try db.run(categories.insert(c_name <- "Art & Création 🎨"))
-            try db.run(categories.insert(c_name <- "Communauté 🤝"))
-            try db.run(categories.insert(c_name <- "Environnement 🌍"))
+            try db.run(categories.insert(c_name <- "Innovation & Tech"))
+            try db.run(categories.insert(c_name <- "Art & Création"))
+            try db.run(categories.insert(c_name <- "Communauté"))
+            try db.run(categories.insert(c_name <- "Environnement"))
         }
 
         return db
